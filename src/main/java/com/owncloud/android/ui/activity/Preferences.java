@@ -41,6 +41,7 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -176,6 +177,22 @@ public class Preferences extends PreferenceActivity
 
         // Dev
         setupDevCategory(accentColor, preferenceScreen);
+
+        final SwitchPreference themePref = (SwitchPreference) findPreference(getString(R.string.prefs_key_theme));
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Boolean darkTheme = sp.getBoolean(getString(R.string.prefs_key_theme), false);
+
+        setThemePreferenceSummary(themePref, darkTheme);
+        themePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Boolean darkTheme = (Boolean) newValue;
+                MainApp.setAppTheme(darkTheme);
+//                setResult(Activity.RESULT_OK);
+
+                return true;
+            }
+        });
     }
 
     private void setupDevCategory(int accentColor, PreferenceScreen preferenceScreen) {
@@ -739,6 +756,7 @@ public class Preferences extends PreferenceActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: ");
         finish();
         return super.onOptionsItemSelected(item);
     }
@@ -1037,4 +1055,12 @@ public class Preferences extends PreferenceActivity
         FileActivity.showDevSnackbar(this, latestVersion, true);
     }
 
+
+    private void setThemePreferenceSummary(SwitchPreference themePref, Boolean darkTheme) {
+        if (darkTheme) {
+            themePref.setSummary(getString(R.string.prefs_value_theme_dark));
+        } else {
+            themePref.setSummary(getString(R.string.prefs_value_theme_light));
+        }
+    }
 }
